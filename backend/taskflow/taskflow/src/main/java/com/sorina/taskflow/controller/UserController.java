@@ -42,8 +42,8 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<User>> getUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<List<UserResponseDTO>> getUsers() {
+        return ResponseEntity.ok(userService.getAllUsersAsDTO());
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -68,26 +68,12 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<UserResponseDTO> getCurrentUser() {
-        User user = userService.getCurrentUser();
-        Set<RoleType> roles = user.getRoles().stream()
-                .map(Role::getName)
-                .collect(Collectors.toSet());
-
-        UserResponseDTO response = new UserResponseDTO(
-                user.getId().toString(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getFirstName(),
-                user.getLastName(),
-                roles,
-                user.getProfilePictureUrl()
-        );
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userService.getCurrentUserResponse());
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/me/profile")
-    public ResponseEntity<User> updateProfile(@RequestBody UserProfileDTO dto) {
+    public ResponseEntity<UserResponseDTO> updateProfile(@RequestBody UserProfileDTO dto) {
         return ResponseEntity.ok(userService.updateProfile(dto));
     }
 

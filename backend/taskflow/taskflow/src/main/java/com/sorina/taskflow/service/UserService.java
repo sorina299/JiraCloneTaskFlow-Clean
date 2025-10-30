@@ -3,6 +3,7 @@ package com.sorina.taskflow.service;
 import com.sorina.taskflow.dto.AccountSettingsDTO;
 import com.sorina.taskflow.dto.RegisterRequestDTO;
 import com.sorina.taskflow.dto.UserProfileDTO;
+import com.sorina.taskflow.dto.UserResponseDTO;
 import com.sorina.taskflow.entity.Role;
 import com.sorina.taskflow.entity.User;
 import com.sorina.taskflow.enums.RoleType;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -61,9 +63,20 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponseDTO> getAllUsersAsDTO() {
+        return userRepository.findAll().stream()
+                .map(user -> new UserResponseDTO(
+                        user.getId().toString(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()),
+                        user.getProfilePictureUrl()
+                ))
+                .collect(Collectors.toList());
     }
+
 
     public User getUserById(UUID id) {
         return userRepository.findById(id)
@@ -103,7 +116,26 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public User updateProfile(UserProfileDTO dto) {
+    public UserResponseDTO getCurrentUserResponse() {
+        User user = getCurrentUser();
+
+        Set<RoleType> roles = user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+
+        return new UserResponseDTO(
+                user.getId().toString(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                roles,
+                user.getProfilePictureUrl()
+        );
+    }
+
+
+    public UserResponseDTO updateProfile(UserProfileDTO dto) {
         User user = getCurrentUser();
 
         if (dto.firstName() != null) user.setFirstName(dto.firstName());
@@ -113,8 +145,23 @@ public class UserService {
         if (dto.description() != null) user.setDescription(dto.description());
         if (dto.profilePictureUrl() != null) user.setProfilePictureUrl(dto.profilePictureUrl());
 
-        return userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+
+        Set<RoleType> roles = updatedUser.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+
+        return new UserResponseDTO(
+                updatedUser.getId().toString(),
+                updatedUser.getUsername(),
+                updatedUser.getEmail(),
+                updatedUser.getFirstName(),
+                updatedUser.getLastName(),
+                roles,
+                updatedUser.getProfilePictureUrl()
+        );
     }
+
 
     public void changePassword(AccountSettingsDTO dto) {
         User user = getCurrentUser();
