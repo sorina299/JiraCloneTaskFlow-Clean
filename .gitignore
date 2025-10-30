@@ -1,0 +1,42 @@
+### Backend (Spring Boot / Maven) ###
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.log
+*.tmp
+*.bak
+*.swp
+
+### Frontend (Angular) ###
+node_modules/
+dist/
+.npm/
+.yarn/
+*.tgz
+
+# Angular build cache
+.angular/cache/
+.angular/
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+out/
+
+### VS Code ###
+.vscode/
+.history/
+
+### OS files ###
+.DS_Store
+Thumbs.db
+
+### Docker ###
+# Logs, volumes, tmp data
+docker-data/
+*.pid
+*.seed
+*.pid.lock
+
+### Env files (dacă pui parole aici, să nu intre în repo) ###
+.env
+.env.local
