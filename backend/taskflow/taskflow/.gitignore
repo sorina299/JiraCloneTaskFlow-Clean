@@ -34,4 +34,4 @@ build/
 
 # Ignore credentials
 src/main/resources/oauth-client-credentials.json
-tokens/
+tokens/StoredCredential
