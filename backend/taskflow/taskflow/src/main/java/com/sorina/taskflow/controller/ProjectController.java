@@ -1,6 +1,9 @@
 package com.sorina.taskflow.controller;
 
 import com.sorina.taskflow.dto.ProjectDTO;
+import com.sorina.taskflow.dto.ProjectInvitationDTO;
+import com.sorina.taskflow.entity.ProjectInvitation;
+import com.sorina.taskflow.enums.ProjectRole;
 import com.sorina.taskflow.service.ProjectService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -60,5 +63,38 @@ public class ProjectController {
     @GetMapping("/{id}")
     public ResponseEntity<ProjectDTO> getProjectById(@PathVariable UUID id) {
         return ResponseEntity.ok(projectService.getProjectById(id));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{projectId}/invite")
+    public ResponseEntity<String> inviteUser(
+            @PathVariable UUID projectId,
+            @RequestParam String identifier,    // username or email
+            @RequestParam(defaultValue = "DEVELOPER") ProjectRole role
+    ) {
+        projectService.inviteUserToProject(projectId, identifier, role);
+        return ResponseEntity.ok("Invitation sent");
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/invitations")
+    public ResponseEntity<List<ProjectInvitationDTO>> getMyInvitations() {
+        return ResponseEntity.ok(projectService.getMyPendingInvitations());
+    }
+
+    // Accept invitation
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/invitations/{invitationId}/accept")
+    public ResponseEntity<String> acceptInvitation(@PathVariable UUID invitationId) {
+        projectService.acceptInvitation(invitationId);
+        return ResponseEntity.ok("Invitation accepted");
+    }
+
+    // Decline invitation
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/invitations/{invitationId}/decline")
+    public ResponseEntity<String> declineInvitation(@PathVariable UUID invitationId) {
+        projectService.declineInvitation(invitationId);
+        return ResponseEntity.ok("Invitation declined");
     }
 }

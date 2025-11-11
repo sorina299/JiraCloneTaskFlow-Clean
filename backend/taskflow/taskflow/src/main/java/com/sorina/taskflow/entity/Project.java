@@ -1,5 +1,6 @@
 package com.sorina.taskflow.entity;
 
+import com.sorina.taskflow.enums.ProjectRole;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -28,13 +29,12 @@ public class Project {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "project_members",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
+    @OneToMany(
+            mappedBy = "project",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
     )
-    private Set<User> members = new HashSet<>();
+    private Set<ProjectMember> members = new HashSet<>();
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -58,6 +58,15 @@ public class Project {
         this.name = name;
         this.description = description;
         this.owner = owner;
+    }
+
+    public void addMember(User user, ProjectRole role) {
+        ProjectMember member = new ProjectMember(this, user, role);
+        members.add(member);
+    }
+
+    public void removeMember(User user) {
+        members.removeIf(m -> m.getUser().getId().equals(user.getId()));
     }
 
     public UUID getId() {
@@ -100,11 +109,11 @@ public class Project {
         this.owner = owner;
     }
 
-    public Set<User> getMembers() {
+    public Set<ProjectMember> getMembers() {
         return members;
     }
 
-    public void setMembers(Set<User> members) {
+    public void setMembers(Set<ProjectMember> members) {
         this.members = members;
     }
 
