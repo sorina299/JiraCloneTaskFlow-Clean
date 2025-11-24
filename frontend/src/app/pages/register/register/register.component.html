@@ -1,0 +1,30 @@
+<h2>Register</h2>
+
+<div *ngIf="error" style="color: red">{{ error }}</div>
+<div *ngIf="message" style="color: green">{{ message }}</div>
+
+<form (ngSubmit)="register()">
+  <label>Username</label>
+  <input type="text" [(ngModel)]="userData.username" name="username" required />
+
+  <label>Email</label>
+  <input type="email" [(ngModel)]="userData.email" name="email" required />
+
+  <label>First name</label>
+  <input type="text" [(ngModel)]="userData.firstName" name="firstName" required />
+
+  <label>Last name</label>
+  <input type="text" [(ngModel)]="userData.lastName" name="lastName" required />
+
+  <label>Password</label>
+  <input
+    type="password"
+    [(ngModel)]="userData.password"
+    name="password"
+    required
+  />
+
+  <button type="submit">Register</button>
+</form>
+
+<a routerLink="/login">Already have an account? Login</a>
